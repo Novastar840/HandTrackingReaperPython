@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../SavingValues/.idea/SavingValues.iml" filepath="$PROJECT_DIR$/../SavingValues/.idea/SavingValues.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/TrackingHands.iml" filepath="$PROJECT_DIR$/.idea/TrackingHands.iml" />
+    </modules>
+  </component>
+</project>
