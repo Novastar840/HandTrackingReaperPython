@@ -9,6 +9,7 @@ rec_x_size = 1000
 rec_y_size = 500
 split_item_action_id = 40012
 note_border_y_coordinates = []
+rec_bottom_left = None
 # --reaper--
 # get firsts track
 current_project = reapy.Project()
@@ -38,8 +39,11 @@ hands = mp_hands.Hands()
 
 
 
-def normalize_range(min, max, inputValue, scalar=1):
-    normalized_value = ((inputValue - min) / (max - min) - 1) * scalar
+def normalize_range(min, max, inputValue, scalar=1, high_to_low=False):
+    range  =( inputValue - max)
+    normalized_value = ( range / (max - min) - 1) * scalar
+    if high_to_low:
+        normalized_value = scalar - normalized_value
     print(normalized_value)
     return normalized_value
 
@@ -121,7 +125,7 @@ while True:
             with reapy.inside_reaper():
                 # print("macro values = {:.2f} {:.2f} {:.2f} {:.2f}".format(fx_params[macro1_index], fx_params[macro2_index], fx_params[macro3_index], fx_params[macro4_index]))
                 indexFinger = (x8, 1 - y8)
-                fx_params[macro1_index] = normalize_range(rec_bottom_left[1] + rec_y_size, rec_bottom_left[1], location[1], 1)
+                fx_params[macro1_index] = snapping_point.GetMacroValue()
                 fx_params[macro2_index] = indexFinger[0]
 
             pixel_indexFinger_coordinate = (indexFinger[0] * frame.shape[1], frame.shape[0] - indexFinger[1] * frame.shape[0])

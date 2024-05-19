@@ -1,7 +1,7 @@
 
 class Cmajor():
     def __init__(self):
-        self.notes_count = 6
+        self.notes_count = 7
         self.midi_notes = [48, 50, 52, 53, 55, 57, 59]
     def GetNotesCount(self):
         return self.notes_count
