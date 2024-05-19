@@ -28,8 +28,10 @@ print("initialised parameters")
 
 # --webcam--
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+frame_height = 600
+frame_width = 800
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
 
 has_been_calculated = False
 mp_drawing = mp.solutions.drawing_utils
@@ -83,7 +85,7 @@ def SnappingPointUpdate():
     snapping_point.set_target_location(pixel_indexFinger_coordinate)
     snapping_point.update_location()
     cv2.circle(frame, (int(snapping_point.current_location[0]), int(snapping_point.current_location[1])), 5, (255, 0, 255), -1)
-
+# rec_bottom_left = (int(frame_width // 2 - rec_x_size / 2), int(frame_height // 2 + rec_y_size / 2))
 # frame loop
 while True:
     success, frame = cap.read()
@@ -97,19 +99,11 @@ while True:
             rec_bottom_left = (int(frame.shape[1] // 2 - rec_x_size / 2), int(frame.shape[0] // 2 + rec_y_size / 2))
 
 
-        draw_rectangle(frame, rec_bottom_left, rec_x_size, rec_y_size, cmajor_scale.notes_count + 1,(0, 255, 0), 1)
+        draw_rectangle(frame, rec_bottom_left, rec_x_size, rec_y_size, (cmajor_scale.notes_count * 2) + 2,(0, 255, 0), 1)
 
         if has_been_calculated == False:
             snapping_point.SetYCoordinates(note_border_y_coordinates)
             has_been_calculated = True
-
-
-
-        if current_project.is_playing and is_point_inside_rectangle(snapping_point.GetLocation(),rec_bottom_left, rec_x_size, rec_y_size):
-            if len(first_track.items) == 0:
-                first_track.add_midi_item(current_project.cursor_position, current_project.cursor_position + 100)
-                first_track.select()
-            print(snapping_point.GetLocation())
 
 
         rgb_img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

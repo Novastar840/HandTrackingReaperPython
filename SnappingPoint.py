@@ -28,20 +28,25 @@ class SnappingPoint:
         y_diff = self.target_location[1] - self.current_location[1]
         y_section_size = self.y_coordinates[0] - self.y_coordinates[1]
 
-        if self.y_coordinates[0] - y_section_size < self.target_location[1]:
-            self.current_location = (self.current_location[0], self.y_coordinates[0])
-        elif self.y_coordinates[1] - y_section_size < self.target_location[1] < self.y_coordinates[1] + y_section_size:
-            self.current_location = (self.current_location[0], self.y_coordinates[1])
-        elif self.y_coordinates[2] - y_section_size < self.target_location[1] < self.y_coordinates[2] + y_section_size:
-            self.current_location = (self.current_location[0], self.y_coordinates[2])
-        elif self.y_coordinates[3] - y_section_size < self.target_location[1] < self.y_coordinates[3] + y_section_size:
-            self.current_location = (self.current_location[0], self.y_coordinates[3])
-        elif self.y_coordinates[4] - y_section_size < self.target_location[1] < self.y_coordinates[4] + y_section_size:
-            self.current_location = (self.current_location[0], self.y_coordinates[4])
-        elif self.y_coordinates[5] - y_section_size < self.target_location[1] < self.y_coordinates[5] + y_section_size:
-            self.current_location = (self.current_location[0], self.y_coordinates[5])
-        elif self.y_coordinates[6] - y_section_size < self.target_location[1] < self.y_coordinates[6] + y_section_size:
-            self.current_location = (self.current_location[0], self.y_coordinates[6])
+        #if self.y_coordinates[0] - y_section_size < self.target_location[1]:
+            #self.current_location = (self.current_location[0], self.y_coordinates[0])
+        #elif self.y_coordinates[1] - y_section_size < self.target_location[1] < self.y_coordinates[1] + y_section_size:
+            #self.current_location = (self.current_location[0], self.y_coordinates[1])
+        #elif self.y_coordinates[2] - y_section_size < self.target_location[1] < self.y_coordinates[2] + y_section_size:
+            #self.current_location = (self.current_location[0], self.y_coordinates[2])
+        #elif self.y_coordinates[3] - y_section_size < self.target_location[1] < self.y_coordinates[3] + y_section_size:
+            #self.current_location = (self.current_location[0], self.y_coordinates[3])
+        #elif self.y_coordinates[4] - y_section_size < self.target_location[1] < self.y_coordinates[4] + y_section_size:
+            #self.current_location = (self.current_location[0], self.y_coordinates[4])
+        #elif self.y_coordinates[5] - y_section_size < self.target_location[1] < self.y_coordinates[5] + y_section_size:
+            #self.current_location = (self.current_location[0], self.y_coordinates[5])
+        #elif self.y_coordinates[6] - y_section_size < self.target_location[1] < self.y_coordinates[6] + y_section_size:
+            #self.current_location = (self.current_location[0], self.y_coordinates[6])
+
+        for i in range(0, len(self.y_coordinates)):
+            if self.y_coordinates[i] - y_section_size < self.target_location[1] < self.y_coordinates[i] + y_section_size:
+                self.current_location = (self.current_location[0], self.y_coordinates[i])
+                break
 
         if abs(y_diff) < 5:
             self.max_change_rate = 1
@@ -78,7 +83,29 @@ class SnappingPoint:
         semitones += normalize_range(self.y_coordinates[5], self.y_coordinates[4], self.current_location[1], 2,True)
         # B
         semitones += normalize_range(self.y_coordinates[6], self.y_coordinates[5], self.current_location[1], 2,True)
+        # C high
+        semitones += normalize_range(self.y_coordinates[7], self.y_coordinates[6], self.current_location[1], 1,True)
+        # D high
+        semitones += normalize_range(self.y_coordinates[8], self.y_coordinates[7], self.current_location[1], 2,True)
+        # E high
+        semitones += normalize_range(self.y_coordinates[9], self.y_coordinates[8], self.current_location[1], 2,True)
+        # F high
+        semitones += normalize_range(self.y_coordinates[10], self.y_coordinates[9], self.current_location[1], 1,True)
+        # G high
+        semitones += normalize_range(self.y_coordinates[11], self.y_coordinates[10], self.current_location[1], 2,True)
+        # A high
+        semitones += normalize_range(self.y_coordinates[12], self.y_coordinates[11], self.current_location[1], 2,True)
+        # B high
+        semitones += normalize_range(self.y_coordinates[13], self.y_coordinates[12], self.current_location[1], 2,True)
+        # C top
+        semitones += normalize_range(self.y_coordinates[14], self.y_coordinates[13], self.current_location[1], 1,True)
 
 
-        self.macro_value = normalize_range(0,11,semitones, 1, False)
+
+
+
+
+
+
+        self.macro_value = normalize_range(0,24,semitones, 1, False)
         return self.macro_value
