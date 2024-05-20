@@ -13,7 +13,7 @@ rec_y_size = 500
 split_item_action_id = 40012
 note_border_y_coordinates = []
 rec_bottom_left = None
-walking_point_toggle = False
+walking_point_toggle = True
 # --reaper--
 # get firsts track
 current_project = reapy.Project()
@@ -123,9 +123,9 @@ while True:
                 iy8 = landmark_8.y
                 if walking_point_toggle == False:
                     location = snapping_point.GetLocation()
-                    my12 = hand_landmarks.landmark[12].y
-                    mx12 = hand_landmarks.landmark[12].x
-                    middle_finger = [mx12, 1 - my12]
+                my12 = hand_landmarks.landmark[12].y
+                mx12 = hand_landmarks.landmark[12].x
+                middle_finger = [mx12, 1 - my12]
 
             with reapy.inside_reaper():
                 # print("macro values = {:.2f} {:.2f} {:.2f} {:.2f}".format(fx_params[macro1_index], fx_params[macro2_index], fx_params[macro3_index], fx_params[macro4_index]))
@@ -139,6 +139,7 @@ while True:
                 if walking_point_toggle == False:
                     fx_params[macro1_index] = snapping_point.GetMacroValue()
                     fx_params[macro2_index] = normalize_range(rec_bottom_left[0], rec_bottom_left[0] + rec_x_size, indexFinger[0] * frame.shape[1])
+
                     SnappingPointUpdate()
                 else:
                     WalkingPointUpdate()
