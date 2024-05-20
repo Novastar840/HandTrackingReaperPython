@@ -28,21 +28,6 @@ class SnappingPoint:
         y_diff = self.target_location[1] - self.current_location[1]
         y_section_size = self.y_coordinates[0] - self.y_coordinates[1]
 
-        #if self.y_coordinates[0] - y_section_size < self.target_location[1]:
-            #self.current_location = (self.current_location[0], self.y_coordinates[0])
-        #elif self.y_coordinates[1] - y_section_size < self.target_location[1] < self.y_coordinates[1] + y_section_size:
-            #self.current_location = (self.current_location[0], self.y_coordinates[1])
-        #elif self.y_coordinates[2] - y_section_size < self.target_location[1] < self.y_coordinates[2] + y_section_size:
-            #self.current_location = (self.current_location[0], self.y_coordinates[2])
-        #elif self.y_coordinates[3] - y_section_size < self.target_location[1] < self.y_coordinates[3] + y_section_size:
-            #self.current_location = (self.current_location[0], self.y_coordinates[3])
-        #elif self.y_coordinates[4] - y_section_size < self.target_location[1] < self.y_coordinates[4] + y_section_size:
-            #self.current_location = (self.current_location[0], self.y_coordinates[4])
-        #elif self.y_coordinates[5] - y_section_size < self.target_location[1] < self.y_coordinates[5] + y_section_size:
-            #self.current_location = (self.current_location[0], self.y_coordinates[5])
-        #elif self.y_coordinates[6] - y_section_size < self.target_location[1] < self.y_coordinates[6] + y_section_size:
-            #self.current_location = (self.current_location[0], self.y_coordinates[6])
-
         for i in range(0, len(self.y_coordinates)):
             if self.y_coordinates[i] - y_section_size < self.target_location[1] < self.y_coordinates[i] + y_section_size:
                 self.current_location = (self.current_location[0], self.y_coordinates[i])
