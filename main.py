@@ -13,7 +13,7 @@ rec_y_size = 500
 split_item_action_id = 40012
 note_border_y_coordinates = []
 rec_bottom_left = None
-walking_point_toggle = True
+walking_point_toggle = False
 # --reaper--
 # get firsts track
 current_project = reapy.Project()
@@ -78,12 +78,12 @@ walking_point = WalkingPoint((frame_width/2,frame_height/2) , 40)
 def SnappingPointUpdate():
     snapping_point.set_target_location(pixel_indexFinger_coordinate)
     snapping_point.update_location()
-    cv2.circle(frame, (int(snapping_point.current_location[0]), int(snapping_point.current_location[1])), 5, (255, 0, 255), -1)
+    cv2.circle(mirror_frame, (int(snapping_point.current_location[0]), int(snapping_point.current_location[1])), 5, (255, 0, 255), -1)
 
 def WalkingPointUpdate():
     walking_point.set_target_location(pixel_indexFinger_coordinate)
     walking_point.update_location()
-    cv2.circle(frame, (int(walking_point.current_location[0]), int(walking_point.current_location[1])), 5, (255, 0, 255), -1)
+    cv2.circle(mirror_frame, (int(walking_point.current_location[0]), int(walking_point.current_location[1])), 5, (255, 0, 255), -1)
 # rec_bottom_left = (int(frame_width // 2 - rec_x_size / 2), int(frame_height // 2 + rec_y_size / 2))
 # frame loop
 while True:
@@ -93,18 +93,18 @@ while True:
         # cv2.line(frame, (0, frame.shape[0] // 2), (frame.shape[1], frame.shape[0] // 2), (0, 255, 0), 2)
         # cv2.line(frame, (frame.shape[1] // 2, frame.shape[0]), (frame.shape[1] // 2, 0), (0, 255, 0), 2)
 
-
+        mirror_frame = cv2.flip(frame, 1)
         # one time frame calculations
         if has_been_calculated == False:
-            rec_bottom_left = (int(frame.shape[1] // 2 - rec_x_size / 2), int(frame.shape[0] // 2 + rec_y_size / 2))
+            rec_bottom_left = (int(mirror_frame.shape[1] // 2 - rec_x_size / 2), int(mirror_frame.shape[0] // 2 + rec_y_size / 2))
             if walking_point_toggle == False:
                 snapping_point = SnappingPoint(current_location=(rec_bottom_left[0], 100), max_change_rate=30, y_coordinates=note_border_y_coordinates)
 
         if walking_point_toggle == True:
-            draw_rectangle(frame, rec_bottom_left, rec_x_size, rec_y_size, 1, (0,255,0), 1)
+            draw_rectangle(mirror_frame, rec_bottom_left, rec_x_size, rec_y_size, 1, (0,255,0), 1)
 
         if walking_point_toggle == False:
-            draw_rectangle(frame, rec_bottom_left, rec_x_size, rec_y_size, (cmajor_scale.notes_count * 2) + 2,(0, 255, 0), 1)
+            draw_rectangle(mirror_frame, rec_bottom_left, rec_x_size, rec_y_size, (cmajor_scale.notes_count * 2) + 2,(0, 255, 0), 1)
 
         if has_been_calculated == False:
             if walking_point_toggle == False:
@@ -112,11 +112,11 @@ while True:
             has_been_calculated = True
 
 
-        rgb_img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        rgb_img = cv2.cvtColor(mirror_frame, cv2.COLOR_BGR2RGB)
         results = hands.process(rgb_img)
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+                mp_drawing.draw_landmarks(mirror_frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
                 # get coordinates
                 landmark_8 = hand_landmarks.landmark[8]
                 ix8 = landmark_8.x
@@ -131,14 +131,14 @@ while True:
                 # print("macro values = {:.2f} {:.2f} {:.2f} {:.2f}".format(fx_params[macro1_index], fx_params[macro2_index], fx_params[macro3_index], fx_params[macro4_index]))
                 indexFinger = [ix8, 1 - iy8]
                 pixel_indexFinger_coordinate = (
-                indexFinger[0] * frame.shape[1], frame.shape[0] - indexFinger[1] * frame.shape[0])
-                newx = (middle_finger[0] - indexFinger[0]) * frame.shape[1]
-                newy = (middle_finger[1] - indexFinger[1]) * frame.shape[0]
+                indexFinger[0] * mirror_frame.shape[1], mirror_frame.shape[0] - indexFinger[1] * mirror_frame.shape[0])
+                newx = (middle_finger[0] - indexFinger[0]) * mirror_frame.shape[1]
+                newy = (middle_finger[1] - indexFinger[1]) * mirror_frame.shape[0]
                 diff = math.sqrt(newx ** 2 + newy ** 2)
                 fx_params[macro3_index] = normalize_range(10, 100, diff)
                 if walking_point_toggle == False:
                     fx_params[macro1_index] = snapping_point.GetMacroValue()
-                    fx_params[macro2_index] = normalize_range(rec_bottom_left[0], rec_bottom_left[0] + rec_x_size, indexFinger[0] * frame.shape[1])
+                    fx_params[macro2_index] = normalize_range(rec_bottom_left[0], rec_bottom_left[0] + rec_x_size, indexFinger[0] * mirror_frame.shape[1])
 
                     SnappingPointUpdate()
                 else:
@@ -146,7 +146,7 @@ while True:
                     fx_params[macro1_index] = normalize_range(rec_bottom_left[0], rec_bottom_left[0] + rec_x_size, walking_point.current_location[0])
                     fx_params[macro2_index] = normalize_range(rec_bottom_left[1], rec_bottom_left[1] - rec_y_size, walking_point.current_location[1])
 
-        cv2.imshow('Capture image', frame)
+        cv2.imshow('Capture image',mirror_frame )
 
         if cv2.waitKey(1) == ord("q"):
             break
