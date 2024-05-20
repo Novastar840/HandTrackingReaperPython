@@ -100,12 +100,5 @@ class SnappingPoint:
         # C top
         semitones += normalize_range(self.y_coordinates[14], self.y_coordinates[13], self.current_location[1], 1,True)
 
-
-
-
-
-
-
-
         self.macro_value = normalize_range(0,24,semitones, 1, False)
         return self.macro_value

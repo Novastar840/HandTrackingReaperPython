@@ -1,11 +1,14 @@
+import math
+
 import cv2
 import mediapipe as mp
 import reapy
 from SnappingPoint import SnappingPoint
+from SnappingPoint import normalize_range
 from MusicScales import Cmajor
 
 # --General Globals--
-rec_x_size = 1000
+rec_x_size = 500
 rec_y_size = 500
 split_item_action_id = 40012
 note_border_y_coordinates = []
@@ -28,8 +31,8 @@ print("initialised parameters")
 
 # --webcam--
 cap = cv2.VideoCapture(0)
-frame_height = 600
-frame_width = 800
+frame_height = 800
+frame_width = 1200
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
 
@@ -38,16 +41,6 @@ mp_drawing = mp.solutions.drawing_utils
 
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands()
-
-
-
-def normalize_range(min, max, inputValue, scalar=1, high_to_low=False):
-    range  =( inputValue - max)
-    normalized_value = ( range / (max - min) - 1) * scalar
-    if high_to_low:
-        normalized_value = scalar - normalized_value
-    print(normalized_value)
-    return normalized_value
 
 def draw_rectangle(frame, bottom_left, x_size, y_size, divisions=1, color=(0, 255, 0), thickness=2):
 
@@ -80,7 +73,7 @@ def is_point_inside_rectangle(point, bottom_left, x_size, y_size):
         return False
 
 cmajor_scale = Cmajor()
-snapping_point = SnappingPoint(current_location=(100, 100), max_change_rate=30, y_coordinates=note_border_y_coordinates)
+
 def SnappingPointUpdate():
     snapping_point.set_target_location(pixel_indexFinger_coordinate)
     snapping_point.update_location()
@@ -97,7 +90,7 @@ while True:
         # one time frame calculations
         if has_been_calculated == False:
             rec_bottom_left = (int(frame.shape[1] // 2 - rec_x_size / 2), int(frame.shape[0] // 2 + rec_y_size / 2))
-
+            snapping_point = SnappingPoint(current_location=(rec_bottom_left[0], 100), max_change_rate=30, y_coordinates=note_border_y_coordinates)
 
         draw_rectangle(frame, rec_bottom_left, rec_x_size, rec_y_size, (cmajor_scale.notes_count * 2) + 2,(0, 255, 0), 1)
 
@@ -113,14 +106,23 @@ while True:
                 mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
                 # get coordinates
                 landmark_8 = hand_landmarks.landmark[8]
-                x8 = landmark_8.x
-                y8 = landmark_8.y
+                ix8 = landmark_8.x
+                iy8 = landmark_8.y
                 location = snapping_point.GetLocation()
+                my12 = hand_landmarks.landmark[12].y
+                mx12 = hand_landmarks.landmark[12].x
+                middle_finger = [mx12, 1 - my12]
+
             with reapy.inside_reaper():
                 # print("macro values = {:.2f} {:.2f} {:.2f} {:.2f}".format(fx_params[macro1_index], fx_params[macro2_index], fx_params[macro3_index], fx_params[macro4_index]))
-                indexFinger = (x8, 1 - y8)
+                indexFinger = [ix8, 1 - iy8]
                 fx_params[macro1_index] = snapping_point.GetMacroValue()
-                fx_params[macro2_index] = indexFinger[0]
+                fx_params[macro2_index] = normalize_range(rec_bottom_left[0], rec_bottom_left[0] + rec_x_size, indexFinger[0] * frame.shape[1])
+                newx = (middle_finger[0] - indexFinger[0]) * frame.shape[1]
+                newy = (middle_finger[1] - indexFinger[1]) * frame.shape[0]
+                diff = math.sqrt(newx ** 2 + newy ** 2)
+                fx_params[macro3_index] = normalize_range(10, 100, diff)
+                print(fx_params[macro3_index])
 
             pixel_indexFinger_coordinate = (indexFinger[0] * frame.shape[1], frame.shape[0] - indexFinger[1] * frame.shape[0])
 
