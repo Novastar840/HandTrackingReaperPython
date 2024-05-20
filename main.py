@@ -1,10 +1,10 @@
 import math
-
 import cv2
 import mediapipe as mp
 import reapy
 from SnappingPoint import SnappingPoint
 from SnappingPoint import normalize_range
+from WalkingPoint import WalkingPoint
 from MusicScales import Cmajor
 
 # --General Globals--
@@ -13,6 +13,7 @@ rec_y_size = 500
 split_item_action_id = 40012
 note_border_y_coordinates = []
 rec_bottom_left = None
+walking_point_toggle = False
 # --reaper--
 # get firsts track
 current_project = reapy.Project()
@@ -61,8 +62,6 @@ def draw_rectangle(frame, bottom_left, x_size, y_size, divisions=1, color=(0, 25
     for pos in division_positions:
         cv2.line(frame, (pos[0], pos[1]), (pos[0] + x_size, pos[1]), color, thickness)
 
-
-
 def is_point_inside_rectangle(point, bottom_left, x_size, y_size):
     top_right = (bottom_left[0] + x_size, bottom_left[1] - y_size)
 
@@ -71,13 +70,20 @@ def is_point_inside_rectangle(point, bottom_left, x_size, y_size):
         return True
     else:
         return False
+if walking_point_toggle == False:
+    cmajor_scale = Cmajor()
 
-cmajor_scale = Cmajor()
+walking_point = WalkingPoint((frame_width/2,frame_height/2) , 40)
 
 def SnappingPointUpdate():
     snapping_point.set_target_location(pixel_indexFinger_coordinate)
     snapping_point.update_location()
     cv2.circle(frame, (int(snapping_point.current_location[0]), int(snapping_point.current_location[1])), 5, (255, 0, 255), -1)
+
+def WalkingPointUpdate():
+    walking_point.set_target_location(pixel_indexFinger_coordinate)
+    walking_point.update_location()
+    cv2.circle(frame, (int(walking_point.current_location[0]), int(walking_point.current_location[1])), 5, (255, 0, 255), -1)
 # rec_bottom_left = (int(frame_width // 2 - rec_x_size / 2), int(frame_height // 2 + rec_y_size / 2))
 # frame loop
 while True:
@@ -87,15 +93,22 @@ while True:
         # cv2.line(frame, (0, frame.shape[0] // 2), (frame.shape[1], frame.shape[0] // 2), (0, 255, 0), 2)
         # cv2.line(frame, (frame.shape[1] // 2, frame.shape[0]), (frame.shape[1] // 2, 0), (0, 255, 0), 2)
 
+
         # one time frame calculations
         if has_been_calculated == False:
             rec_bottom_left = (int(frame.shape[1] // 2 - rec_x_size / 2), int(frame.shape[0] // 2 + rec_y_size / 2))
-            snapping_point = SnappingPoint(current_location=(rec_bottom_left[0], 100), max_change_rate=30, y_coordinates=note_border_y_coordinates)
+            if walking_point_toggle == False:
+                snapping_point = SnappingPoint(current_location=(rec_bottom_left[0], 100), max_change_rate=30, y_coordinates=note_border_y_coordinates)
 
-        draw_rectangle(frame, rec_bottom_left, rec_x_size, rec_y_size, (cmajor_scale.notes_count * 2) + 2,(0, 255, 0), 1)
+        if walking_point_toggle == True:
+            draw_rectangle(frame, rec_bottom_left, rec_x_size, rec_y_size, 1, (0,255,0), 1)
+
+        if walking_point_toggle == False:
+            draw_rectangle(frame, rec_bottom_left, rec_x_size, rec_y_size, (cmajor_scale.notes_count * 2) + 2,(0, 255, 0), 1)
 
         if has_been_calculated == False:
-            snapping_point.SetYCoordinates(note_border_y_coordinates)
+            if walking_point_toggle == False:
+                snapping_point.SetYCoordinates(note_border_y_coordinates)
             has_been_calculated = True
 
 
@@ -108,25 +121,29 @@ while True:
                 landmark_8 = hand_landmarks.landmark[8]
                 ix8 = landmark_8.x
                 iy8 = landmark_8.y
-                location = snapping_point.GetLocation()
-                my12 = hand_landmarks.landmark[12].y
-                mx12 = hand_landmarks.landmark[12].x
-                middle_finger = [mx12, 1 - my12]
+                if walking_point_toggle == False:
+                    location = snapping_point.GetLocation()
+                    my12 = hand_landmarks.landmark[12].y
+                    mx12 = hand_landmarks.landmark[12].x
+                    middle_finger = [mx12, 1 - my12]
 
             with reapy.inside_reaper():
                 # print("macro values = {:.2f} {:.2f} {:.2f} {:.2f}".format(fx_params[macro1_index], fx_params[macro2_index], fx_params[macro3_index], fx_params[macro4_index]))
                 indexFinger = [ix8, 1 - iy8]
-                fx_params[macro1_index] = snapping_point.GetMacroValue()
-                fx_params[macro2_index] = normalize_range(rec_bottom_left[0], rec_bottom_left[0] + rec_x_size, indexFinger[0] * frame.shape[1])
-                newx = (middle_finger[0] - indexFinger[0]) * frame.shape[1]
-                newy = (middle_finger[1] - indexFinger[1]) * frame.shape[0]
-                diff = math.sqrt(newx ** 2 + newy ** 2)
-                fx_params[macro3_index] = normalize_range(10, 100, diff)
-                print(fx_params[macro3_index])
-
-            pixel_indexFinger_coordinate = (indexFinger[0] * frame.shape[1], frame.shape[0] - indexFinger[1] * frame.shape[0])
-
-            SnappingPointUpdate()
+                pixel_indexFinger_coordinate = (
+                indexFinger[0] * frame.shape[1], frame.shape[0] - indexFinger[1] * frame.shape[0])
+                if walking_point_toggle == False:
+                    fx_params[macro1_index] = snapping_point.GetMacroValue()
+                    fx_params[macro2_index] = normalize_range(rec_bottom_left[0], rec_bottom_left[0] + rec_x_size, indexFinger[0] * frame.shape[1])
+                    newx = (middle_finger[0] - indexFinger[0]) * frame.shape[1]
+                    newy = (middle_finger[1] - indexFinger[1]) * frame.shape[0]
+                    diff = math.sqrt(newx ** 2 + newy ** 2)
+                    fx_params[macro3_index] = normalize_range(10, 100, diff)
+                    SnappingPointUpdate()
+                else:
+                    WalkingPointUpdate()
+                    fx_params[macro1_index] = normalize_range(rec_bottom_left[0], rec_bottom_left[0] + rec_x_size, walking_point.current_location[0])
+                    fx_params[macro2_index] = normalize_range(rec_bottom_left[1], rec_bottom_left[1] - rec_y_size, walking_point.current_location[1])
 
         cv2.imshow('Capture image', frame)
 
