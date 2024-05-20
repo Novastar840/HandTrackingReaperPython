@@ -132,13 +132,13 @@ while True:
                 indexFinger = [ix8, 1 - iy8]
                 pixel_indexFinger_coordinate = (
                 indexFinger[0] * frame.shape[1], frame.shape[0] - indexFinger[1] * frame.shape[0])
+                newx = (middle_finger[0] - indexFinger[0]) * frame.shape[1]
+                newy = (middle_finger[1] - indexFinger[1]) * frame.shape[0]
+                diff = math.sqrt(newx ** 2 + newy ** 2)
+                fx_params[macro3_index] = normalize_range(10, 100, diff)
                 if walking_point_toggle == False:
                     fx_params[macro1_index] = snapping_point.GetMacroValue()
                     fx_params[macro2_index] = normalize_range(rec_bottom_left[0], rec_bottom_left[0] + rec_x_size, indexFinger[0] * frame.shape[1])
-                    newx = (middle_finger[0] - indexFinger[0]) * frame.shape[1]
-                    newy = (middle_finger[1] - indexFinger[1]) * frame.shape[0]
-                    diff = math.sqrt(newx ** 2 + newy ** 2)
-                    fx_params[macro3_index] = normalize_range(10, 100, diff)
                     SnappingPointUpdate()
                 else:
                     WalkingPointUpdate()
