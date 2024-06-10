@@ -98,7 +98,7 @@ while True:
         if has_been_calculated == False:
             rec_bottom_left = (int(mirror_frame.shape[1] // 2 - rec_x_size / 2), int(mirror_frame.shape[0] // 2 + rec_y_size / 2))
             if walking_point_toggle == False:
-                snapping_point = SnappingPoint(current_location=(rec_bottom_left[0], 100), max_change_rate=30, y_coordinates=note_border_y_coordinates)
+                snapping_point = SnappingPoint(cmajor_scale,current_location=(rec_bottom_left[0], 100), max_change_rate=30, y_coordinates=note_border_y_coordinates)
 
         if walking_point_toggle == True:
             draw_rectangle(mirror_frame, rec_bottom_left, rec_x_size, rec_y_size, 1, (0,255,0), 1)

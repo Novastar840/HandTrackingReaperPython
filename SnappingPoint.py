@@ -1,26 +1,12 @@
-import math
-
-def normalize_vector(vector):
-    x, y = vector
-    magnitude = math.sqrt(x**2 + y**2)
-    normalized_x = x / magnitude
-    normalized_y = y / magnitude
-    return normalized_x, normalized_y
-
-def normalize_range(minValue, maxValue, inputValue, scalar=1, high_to_low=False):
-    range  =(inputValue - minValue)
-    normalized_value = (range / (maxValue - minValue)) * scalar
-    if high_to_low:
-        normalized_value = scalar - normalized_value
-    return max(0, min(normalized_value, scalar))
-
+from Tools import normalize_range
 class SnappingPoint:
-    def __init__(self, current_location=(0, 0), max_change_rate=1, y_coordinates=None):
+    def __init__(self, music_scale, current_location=(0, 0), max_change_rate=1, y_coordinates=None):
         self.current_location = current_location
         self.target_location = current_location
         self.max_change_rate = max_change_rate
         self.initial_max_change_rate = max_change_rate
         self.y_coordinates = y_coordinates
+        self.music_scale = music_scale
     def set_target_location(self, target_location):
         self.target_location = target_location
 
@@ -56,34 +42,6 @@ class SnappingPoint:
         self.y_coordinates = y_coordinates
 
     def GetMacroValue(self):
-        # C & D
-        semitones = normalize_range(self.y_coordinates[1], self.y_coordinates[0], self.current_location[1], 2,True)
-        # E
-        semitones += normalize_range(self.y_coordinates[2], self.y_coordinates[1], self.current_location[1], 2,True)
-        # F
-        semitones += normalize_range(self.y_coordinates[3], self.y_coordinates[2], self.current_location[1], 1,True)
-        # G
-        semitones += normalize_range(self.y_coordinates[4], self.y_coordinates[3], self.current_location[1], 2,True)
-        # A
-        semitones += normalize_range(self.y_coordinates[5], self.y_coordinates[4], self.current_location[1], 2,True)
-        # B
-        semitones += normalize_range(self.y_coordinates[6], self.y_coordinates[5], self.current_location[1], 2,True)
-        # C high
-        semitones += normalize_range(self.y_coordinates[7], self.y_coordinates[6], self.current_location[1], 1,True)
-        # D high
-        semitones += normalize_range(self.y_coordinates[8], self.y_coordinates[7], self.current_location[1], 2,True)
-        # E high
-        semitones += normalize_range(self.y_coordinates[9], self.y_coordinates[8], self.current_location[1], 2,True)
-        # F high
-        semitones += normalize_range(self.y_coordinates[10], self.y_coordinates[9], self.current_location[1], 1,True)
-        # G high
-        semitones += normalize_range(self.y_coordinates[11], self.y_coordinates[10], self.current_location[1], 2,True)
-        # A high
-        semitones += normalize_range(self.y_coordinates[12], self.y_coordinates[11], self.current_location[1], 2,True)
-        # B high
-        semitones += normalize_range(self.y_coordinates[13], self.y_coordinates[12], self.current_location[1], 2,True)
-        # C top
-        semitones += normalize_range(self.y_coordinates[14], self.y_coordinates[13], self.current_location[1], 1,True)
-
+        semitones = self.music_scale.GetSemitones(self.y_coordinates, self.current_location)
         self.macro_value = normalize_range(0,24,semitones, 1, False)
         return self.macro_value

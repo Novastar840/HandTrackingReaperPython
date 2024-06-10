@@ -1,11 +1,5 @@
 import math
-
-def normalize_vector(vector):
-    x, y = vector
-    magnitude = math.sqrt(x**2 + y**2)
-    normalized_x = x / magnitude
-    normalized_y = y / magnitude
-    return normalized_x, normalized_y
+from Tools import normalize_vector
 
 class WalkingPoint:
     def __init__(self, current_location=(0, 0), max_change_rate=1):
