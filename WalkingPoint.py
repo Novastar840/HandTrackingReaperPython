@@ -15,7 +15,7 @@ class WalkingPoint:
         x_diff = self.target_location[0] - self.current_location[0]
         y_diff = self.target_location[1] - self.current_location[1]
         magnitude = math.sqrt(x_diff ** 2 + y_diff ** 2)
-
+        # reduces speed when near the target
         if magnitude < 5:
             self.max_change_rate = 1
         elif magnitude < 10:
