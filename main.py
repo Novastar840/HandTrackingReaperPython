@@ -3,7 +3,7 @@ import cv2
 import mediapipe as mp
 import reapy
 from SnappingPoint import SnappingPoint
-from SnappingPoint import normalize_range
+from Tools import normalize_range
 from WalkingPoint import WalkingPoint
 from MusicScales import Cmajor
 
@@ -12,7 +12,7 @@ rec_x_size = 500
 rec_y_size = 500
 note_border_y_coordinates = []
 rec_bottom_left = None
-walking_point_toggle = False # will use walking point mode if true
+walking_point_toggle = True # will use walking point mode if true
                              # and snapping point if false
 # --reaper--
 # get firsts track
@@ -26,7 +26,6 @@ macro1_index = 211
 macro2_index = 212
 macro3_index = 213
 macro4_index = 214
-print("initialised parameters")
 
 # --webcam--
 cap = cv2.VideoCapture(0)
