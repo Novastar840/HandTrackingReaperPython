@@ -95,7 +95,7 @@ while True:
                 snapping_point = SnappingPoint(cmajor_scale,current_location=(rec_bottom_left[0], 100), y_coordinates=note_border_y_coordinates)
 
         if walking_point_toggle == True:
-            draw_rectangle(mirror_frame, rec_bottom_left, rec_x_size, rec_y_size, 1, (0,255,0), 1)
+            draw_rectangle(mirror_frame, rec_bottom_left, rec_x_size, rec_y_size, 11, (0,255,0), 1)
 
         if walking_point_toggle == False:
             draw_rectangle(mirror_frame, rec_bottom_left, rec_x_size, rec_y_size, (cmajor_scale.notes_count * 2) + 2,(0, 255, 0), 1)
@@ -128,11 +128,10 @@ while True:
                 new_x = (middle_finger[0] - indexFinger[0]) * mirror_frame.shape[1]
                 new_y = (middle_finger[1] - indexFinger[1]) * mirror_frame.shape[0]
                 diff = math.sqrt(new_x ** 2 + new_y ** 2)
-                fx_params[macro3_index] = normalize_range(10, 100, diff)
+                fx_params[macro3_index] = normalize_range(50, 100, diff)
                 if walking_point_toggle == False:
                     fx_params[macro1_index] = snapping_point.GetMacroValue()
                     fx_params[macro2_index] = normalize_range(rec_bottom_left[0], rec_bottom_left[0] + rec_x_size, indexFinger[0] * mirror_frame.shape[1])
-
                     SnappingPointUpdate()
                 else:
                     WalkingPointUpdate()
